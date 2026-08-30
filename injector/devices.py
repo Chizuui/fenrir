@@ -779,15 +779,27 @@ DEVICES = [
                 match_mode=MatchMode.FIRST,
                 description='Return no image-authentication policy (ARM Thumb)',
             ),
-            'spoof_lock_state': PatchStage(
-                'spoof_lock_state',
-                # sub_3C67C() is the MI seccfg get_lock_state wrapper. State 3 is
-                # handled as unlocked by its callers; state 4 is LKS_LOCK/default.
-                pattern='30 b5 05 46 17 49 87 b0 17 48',
-                replacement='04 21 01 60 00 20 70 47 00 bf',
+            'spoof_vbmeta_device_state': PatchStage(
+                'spoof_vbmeta_device_state',
+                # AVB's Android-cmdline builder branches to the "unlocked"
+                # literal when the AVB device state is nonzero. Nopping only
+                # that branch leaves seccfg, fastboot, and recovery handlers
+                # untouched while emitting device_state=locked to Android.
+                pattern='09 9b 3b bb 91 4a 7a 44',
+                replacement='09 9b 00 bf 91 4a 7a 44',
                 partition='lk',
                 match_mode=MatchMode.FIRST,
-                description='Always report the MI seccfg lock state as locked (ARM Thumb)',
+                description='Emit AVB device_state=locked to Android only (ARM Thumb)',
+            ),
+            'force_green_state': PatchStage(
+                'force_green_state',
+                # sub_54758() serializes androidboot.verifiedbootstate. Keep
+                # its PUSH prologue, then branch to its existing green case.
+                pattern='08 b5 11 4b 7b 44 1b 68',
+                replacement='08 b5 1a e0 7b 44 1b 68',
+                partition='lk',
+                match_mode=MatchMode.FIRST,
+                description='Emit androidboot.verifiedbootstate=green (ARM Thumb)',
             ),
         },
     ),

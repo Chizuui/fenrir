@@ -40,3 +40,11 @@
 - artifacts: [injector/devices.py, work/redmi13c-lk/gale-lock-validation.bin]
 - evidence_ids: [E-003]
 - next: find a Gale fastboot command-gate branch before considering a `bypass_security_control` patch
+
+## 2026-08-30T21:40:00+07:00 | ida-static-analysis | Android-only AVB spoof
+- action: replace global seccfg spoof with AVB cmdline serialization patches
+- command_or_ref: IDA MCP direct API; liblk validation through injector.py
+- result_summary: `sub_62260` serializes `androidboot.vbmeta.device_state`; its `unlocked` branch was suppressed at offset `0x62300`. `sub_54758` serializes `androidboot.verifiedbootstate`; it now uses its existing green case at offset `0x54758`. Both signatures were unique and applied once to a validation copy. The global seccfg lock getter is no longer patched.
+- artifacts: [injector/devices.py, payload/devices/gale.h, work/redmi13c-lk/gale-android-spoof-validation.bin]
+- evidence_ids: [E-003]
+- next: port the payload runtime/toolchain to ARMv7/Thumb before assigning executable stage addresses

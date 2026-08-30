@@ -17,6 +17,20 @@ DEVICE_LOWER := $(shell echo $(DEVICE) | tr '[:upper:]' '[:lower:]')
 
 DEVICE_HEADER := $(DEVICES_DIR)/$(DEVICE_LOWER).h
 
+ifeq ($(DEVICE_LOWER),gale)
+
+.PHONY: all clean
+all:
+	@echo "Gale uses a 32-bit ARM/Thumb LK; the current payload runtime is AArch64-only."
+	@echo "Patch-only injection is supported. An ARMv7 payload port is required before building stages."
+	@mkdir -p $(BUILD_DIR)/$(DEVICE_LOWER)
+	@touch $(BUILD_DIR)/$(DEVICE_LOWER)/.no_payload
+
+clean:
+	rm -rf $(BUILD_DIR)
+
+else
+
 ifeq ($(wildcard $(DEVICE_HEADER)),)
 
 .PHONY: all clean
@@ -113,5 +127,7 @@ device-info:
 
 clean:
 	rm -rf $(BUILD_DIR)
+
+endif
 
 endif
