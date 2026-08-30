@@ -762,6 +762,36 @@ DEVICES = [
         cert_bypass=CertBypass.OVERRIDE,
     ),
     Device(
+        'Gale',
+        'Redmi 13C',
+        {
+            # MT6768 LK (ARM32/Thumb): this function reads the secure-boot
+            # policy table and returns the image-authentication policy for the
+            # requested image class.  Returning 0 disables enforcement.
+            #
+            # The signature was generated from D:\13c_Utils\fenrir\lk.img
+            # (SHA256: 6A629F8E1BF8F605AB64E50E8AF30346003590DC3CC111DEB339DFB2CCA68351).
+            'sec_get_vfy_policy': PatchStage(
+                'sec_get_vfy_policy',
+                pattern='70 b5 82 b0 27 4d',
+                replacement='00 20 70 47 00 bf',
+                partition='lk',
+                match_mode=MatchMode.FIRST,
+                description='Return no image-authentication policy (ARM Thumb)',
+            ),
+            'spoof_lock_state': PatchStage(
+                'spoof_lock_state',
+                # sub_3C67C() is the MI seccfg get_lock_state wrapper. State 3 is
+                # handled as unlocked by its callers; state 4 is LKS_LOCK/default.
+                pattern='30 b5 05 46 17 49 87 b0 17 48',
+                replacement='04 21 01 60 00 20 70 47 00 bf',
+                partition='lk',
+                match_mode=MatchMode.FIRST,
+                description='Always report the MI seccfg lock state as locked (ARM Thumb)',
+            ),
+        },
+    ),
+    Device(
         'xaga',
         'Redmi Note 11T Pro/Pro+/POCO X4 GT/Redmi K50i',
         {
